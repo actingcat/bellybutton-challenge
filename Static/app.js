@@ -3,44 +3,41 @@ function buildMetadata(sample) {
   d3.json("https://static.bc-edx.com/data/dl-1-2/m14/lms/starter/samples.json").then((data) => {
 
     // get the metadata field
-   const metadata= data.metadata;
+   let metadata= data.metadata;
   
-  });
     // Filter the metadata for the object with the desired sample number
-    const result= metadata.filter(OTU => OTU.id == sample[10].toString());
-
+    let result= metadata.filter(OTU => OTU.id == sample);
+    let sample1= result[0];
+    console.log(result);
     // Use d3 to select the panel with id of `#sample-metadata`
-  let betty= d3.select(`#sample-metadata`);
+    let panel= d3.select(`#sample-metadata`);
 
 
     // Use `.html("") to clear any existing metadata
-    $('.metadata').html("");
+    panel.html("");
 
     // Inside a loop, you will need to use d3 to append new
     // tags for each key-value in the filtered metadata.
-    const chucky= ["ethnicity", "gender", "age", "location", "bbtype", "wfreq"];
-    result.forEach(item => {
-      chucky.forEach(key => {
-      betty.append('div')
-      .text(key + ":" + item[key]);
-
-  });
-});
+    for (key in sample1){
+      panel.append("h6").text(`${key.toUpperCase()}: ${sample1[key]}`);
+    };
+    });
+};
 
 // function to build both charts
 function buildCharts(sample) {
   d3.json("https://static.bc-edx.com/data/dl-1-2/m14/lms/starter/samples.json").then((data) => {
 
     // Get the samples field
-    const samples = data.samples()
+    let samples = data.samples;
 
     // Filter the samples for the object with the desired sample number
-    const samplenumber= samples.filter(sampleObj => sampleObj.id == sample)[0];
+    let samplenumber= samples.filter(sampleObj => sampleObj.id == sample)[0];
 
     // Get the otu_ids, otu_labels, and sample_values
-    const otu_ids= samplenumber.otu_ids;
-    const otu_labels= samplenumber.otu_labels;
-    const sample_values= samplenumber.sample_values;
+    let otu_ids= samplenumber.otu_ids;
+    let otu_labels= samplenumber.otu_labels;
+    let sample_values= samplenumber.sample_values;
     
     // Build a Bubble Chart
     let trace1= {
@@ -50,33 +47,43 @@ function buildCharts(sample) {
       mode: 'markers',
       marker: {
         size: sample_values,
-        color: otu_ids
+        color: otu_ids,
+        colorscale: 'Bluered'
       }
     };
     var data=[trace1];
     
     let layout = {
-      height: 400,
-      width: 400,
+      height: 800,
+      width: 800,
       title: 'Bacteria Cultures Per Sample'
     }
 
     // Render the Bubble Chart
-    Plotly.newplot('bubble', data, layout);
+    Plotly.newPlot('bubble', data, layout);
 
     // For the Bar Chart, map the otu_ids to a list of strings for your yticks
-    let trace2= [
-      {
+    let trace2= {
         x: sample_values.slice(0,10).reverse(),
-        y: otu_ids.slice(0,10).map(id => `otu_ids`).reverse(),
+        y: otu_ids.slice(0,10).map(id => `OTU ${id}`).reverse(),
         type: 'bar',
+        orientation: 'h',
+        marker: {
+          color: 'slategray'
+        },
         text: otu_labels.slice(0,10).reverse()
       };
 
-    var otherdata=[trace2];
+    var otherdata = [trace2];
+
+    let newlayout = {
+      height: 800,
+      width: 800,
+      title: 'Top 10 Bacteria Cultures Found'
+    }
     // Build a Bar Chart
     // Don't forget to slice and reverse the input data appropriately
-    Plotly.newplot('bar', otherdata, layout)
+    Plotly.newPlot('bar', otherdata, newlayout);
 
     // Render the Bar Chart
 
@@ -88,7 +95,7 @@ function init() {
   d3.json("https://static.bc-edx.com/data/dl-1-2/m14/lms/starter/samples.json").then((data) => {
 
     // Get the names field
-    const names= data.names;
+    let names= data.names;
 
     // Use d3 to select the dropdown with id of `#selDataset`
     let dropdownMenu= d3.select('#selDataset');
@@ -121,4 +128,4 @@ function optionChanged(newSample) {
 // Initialize the dashboard
 init();
 
-};
+
